@@ -8,14 +8,22 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:8000/shorten/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ original_url: originalUrl }),
-    });
-    const data = await res.json();
-    setShortUrl(`http://localhost:8000/${data.short_code}/`);
     setCopied(false); // Reset copied state when new URL is generated
+    try {
+      const res = await fetch('http://localhost:8000/shorten/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ original_url: originalUrl }),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to shorten URL');
+      }
+      const data = await res.json();
+      // Only use the short code for the short URL
+      setShortUrl(`http://localhost:8000/${data.short_code}/`);
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
   };
 
   return (
